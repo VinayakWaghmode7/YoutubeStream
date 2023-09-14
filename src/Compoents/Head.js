@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react';
 import { useDispatch } from 'react-redux';
 import {toggleMenu }from './Utils/appSlice';
-import { YOUTUBE_SEARCH_API } from './Utils/Constant';
+import { YOUTUBE_SEARCH_API, YOUTUBE_SEARCH_VIDEO_LIST, YOUTUBE_API_KEY, GOOGLE_API_KEY } from './Utils/Constant';
 import {  BiVideoPlus } from "react-icons/bi";
 import { BsBell } from "react-icons/bs";
 
@@ -13,20 +13,34 @@ const Head = () => {
     console.log(searchQuery);
 
     const [ suggestions , setSuggestions] = useState([]);
+    const [searchVideos , setSearchVideos] = useState([]);
 
-   
+    // const handleScroll = () => {
+    //   setSuggestions(false);
+    // };
   
     
     useEffect(()=>{
+      // window.addEventListener("scroll", handleScroll);
       console.log(searchQuery);
       getSearchQuery();
+      getsearchVideos();
+      // return () => {
+      //   window.removeEventListener("scroll", handleScroll);
+      // };
+
     },[searchQuery]);
 
     
-  
+    const getsearchVideos = async() => {
+      const data = await fetch(YOUTUBE_SEARCH_VIDEO_LIST + searchQuery+ "&key=" + GOOGLE_API_KEY);
+      const json = await data.json();
+       console.log(json.items);
+       setSearchVideos(json.items);
+    };
 
     const getSearchQuery = async() => {
-      const data = await fetch(YOUTUBE_SEARCH_API + searchQuery);
+      const data = await fetch(YOUTUBE_SEARCH_API +  searchQuery);
       const json = await data.json();
       console.log(json);
       //After getting an api data will set the suggestiones
@@ -65,14 +79,14 @@ const Head = () => {
         
          />
 
-        <button className='p-2 border border-gray-400 rounded-r-full'>Search</button>
+        <button  className='p-2 border border-gray-400 rounded-r-full'>Search</button>
           
 
       <div 
       className=' absolute  bg-white px-2 py-2 w-[37rem] rounded-lg border border-gray-100'>
          
       <ul>
-       {suggestions.map((s)=>(
+       {suggestions?.map((s)=>(
         <li key={s} className=' shadow-sm px-3 py-2 hover:bg-gray-100'>{s} </li>
        ) 
        )}
